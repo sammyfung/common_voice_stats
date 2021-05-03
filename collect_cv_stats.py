@@ -41,8 +41,8 @@ def get_cv_stats(locale='zh-HK'):
 
     print('For the locale %s in Common Voice dated %s' % (locale, stats_date))
     print('--')
-    print('Validated & Recorded = %s / %s hours' % (round(stats_valid_hour/60/60,1), round(stats_record_hour/60/60,1)))
-    print('Validated & Recorded = %s / %s seconds' % (stats_valid_hour, stats_record_hour))
+    print('Validated & Recorded Voices = %s / %s hours' % (round(stats_valid_hour/60/60,1), round(stats_record_hour/60/60,1)))
+    print('Validated & Recorded Voices = %s / %s seconds' % (stats_valid_hour, stats_record_hour))
     print('Daily Recorded Clip Count = %s' % stats_daily_count)
     print('Daily Validated Clip Count = %s' % stats_votes_count)
     print('Total %s users = %s' % (locale, speakers))
