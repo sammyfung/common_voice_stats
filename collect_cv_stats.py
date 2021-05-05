@@ -1,4 +1,4 @@
-import os, requests, codecs, json, statistics
+import os, requests, statistics
 
 
 def get_cv_stats(locale='zh-HK'):
@@ -24,7 +24,6 @@ def get_cv_stats(locale='zh-HK'):
 
     wp = requests.get(clips_stats_url, stream=True)
     data_stats = wp.json()
-    #data_stats = json.load(codecs.iterdecode(result_stats.iter_lines(), 'utf-8'))
     stats_date = ''
     stats_record_hour = 0
     stats_valid_hour = 0
