@@ -1,5 +1,29 @@
 import os, requests, statistics
 
+def tg_send_msg(content):
+    import sys
+    from telethon import TelegramClient
+    from telethon.tl.types import InputChannel
+    client = TelegramClient('cv_stats_session', content['api_id'], content['api_hash'])
+    client.start()
+    output_channel_entity = None
+    for d in client.iter_dialogs():
+        if d.name == content["output"]:
+            try:
+                output_channel_entity = InputChannel(d.entity.id, d.entity.access_hash)
+            except:
+                output_channel_entity = content['output']
+    if output_channel_entity is None:
+        print("Sending message to %s on telegram is failure." % content['output'])
+        sys.exit(1)
+
+    async def send_msg():
+        await client.send_message(output_channel_entity, content['content'])
+
+    with client:
+        client.loop.run_until_complete(send_msg())
+
+    return 0
 
 def get_cv_stats(locale='zh-HK'):
     cv_url_prefix = 'https://commonvoice.mozilla.org/api/v1/'
@@ -38,23 +62,35 @@ def get_cv_stats(locale='zh-HK'):
     for i in data_stats:
         online_hours += [i['value']]
 
-    print('For the locale %s in Common Voice dated %s' % (locale, stats_date))
-    print('--')
-    print('Validated & Recorded Voices = %s / %s hours' % (round(stats_valid_hour/60/60,1), round(stats_record_hour/60/60,1)))
-    print('Validated & Recorded Voices = %s / %s seconds' % (stats_valid_hour, stats_record_hour))
-    print('Daily Recorded Clip Count = %s' % stats_daily_count)
-    print('Daily Validated Clip Count = %s' % stats_votes_count)
-    print('Total %s users = %s' % (locale, speakers))
-    print('Online users in last 10 hours: %s (Avg: %s, Max: %s, Min: %s)' % \
-          (online_hours, round(statistics.mean(online_hours),1), max(online_hours), min(online_hours)))
+    content = '# For the locale %s in Common Voice\n' % locale
+    content += '## Statistics dated on %s\n' % stats_date
+    content += 'Total %s users = %s\n' % (locale, speakers)
+    content += 'Validated & Recorded Voices = %s / %s hours\n' % (round(stats_valid_hour/60/60,1), round(stats_record_hour/60/60,1))
+    content += 'Validated & Recorded Voices = %s / %s seconds\n' % (stats_valid_hour, stats_record_hour)
+    content += '## Today Statistics\n'
+    content += 'Today Recorded Clip Count = %s\n' % stats_daily_count
+    content += 'Today Validated Clip Count = %s\n' % stats_votes_count
+    content += 'Online users in last 10 hours:\n%s\n(Avg: %s, Max: %s, Min: %s)' % \
+          (online_hours, round(statistics.mean(online_hours),1), max(online_hours), min(online_hours))
+    return content
 
 
 def __main__():
     locale = os.environ.get('CV_LOCALE')
+    tg_config = {}
+    tg_config["api_id"] = os.environ.get('TG_API_ID')
+    tg_config["api_hash"] = os.environ.get('TG_API_HASH')
+    tg_config["output"] = os.environ.get('TG_OUTPUT')
     if not locale:
-        get_cv_stats()
+        content = get_cv_stats()
     else:
-        get_cv_stats(locale)
+        content = get_cv_stats(locale)
+    if not tg_config["api_id"]:
+        print(content)
+    else:
+        tg_config["api_id"] = int(tg_config["api_id"])
+        tg_config["content"] = content
+        tg_send_msg(tg_config)
     return 0
 
 
