@@ -1,3 +1,5 @@
+[![CI](https://github.com/sammyfung/common_voice_stats/actions/workflows/main.yml/badge.svg)](https://github.com/sammyfung/common_voice_stats/actions/workflows/main.yml)
+
 Common Voice Statistics
 -----------------------
 
